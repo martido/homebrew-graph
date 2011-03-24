@@ -9,9 +9,12 @@ class BrewGraph
   
   def run
     options = parse_options
+        
+    nodes = send(options.graph)
+    edges = edges_between(nodes)
     
     graph = case options.format
-      when :dot then Dot.to_graph(installed, edges)
+      when :dot then Dot.to_graph(nodes, edges)
       when :graphml then GraphML.to_graph(installed, edges)
       else puts "Unknown format: #{options.format}"
       end      
@@ -35,6 +38,12 @@ class BrewGraph
         opts.on('-h', '--help') do
           puts opts
           exit
+        end
+        
+        opts.on('-g', '--graph OPTION', [:installed, :all], 
+                'Create graph for <installed|all> Homebrew formulae',
+                'Default: installed') do |g|
+          options.graph = g
         end
         
         opts.on('-f', '--format FORMAT', [:dot, :graphml],
@@ -62,8 +71,13 @@ class BrewGraph
     
     def default_options
       opts = OpenStruct.new
+      opts.graph = :installed;
       opts.format = :dot;
       opts
+    end
+    
+    def all
+      %x[brew search].split("\n")
     end
     
     def installed
@@ -74,9 +88,9 @@ class BrewGraph
       %x[brew deps #{formula}].split("\n")
     end
     
-    def edges
+    def edges_between(nodes)
       edges = []
-      installed.each do |formula|
+      nodes.each do |formula|
         deps(formula).each do |dependent|
           edges << [formula, dependent]
         end

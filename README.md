@@ -1,11 +1,7 @@
 A Ruby script that creates a simple dependency graph of installed Homebrew formulae. The currently supported output options are *Dot* and *GraphML*. The Homebrew distribution contains a similar, but functionally more extensive, [script][1] written in Python which describes the dependency graph in the Dot language.
 
 ## Usage
-    Usage: brew-graph [options]
-        -h, --help
-        -f, --format FORMAT              Specify FORMAT of graph (dot, graphml)
-                                         Default: dot
-        -o, --output FILE                Write output to FILE instead of stdout
+Type `ruby brew-graph.rb -h` to display a list of available options.
         
 ## Requirements
 The GraphML markup is created using the Builder gem. The gem is required on demand, i.e. it is only needed if you use specify the `-f graphml` option.
