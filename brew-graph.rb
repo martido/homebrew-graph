@@ -14,8 +14,8 @@ class BrewGraph
     edges = edges_between(nodes)
     
     graph = case options.format
-      when :dot then Dot.to_graph(nodes, edges)
-      when :graphml then GraphML.to_graph(installed, edges)
+      when :dot then Dot.new.to_graph(nodes, edges)
+      when :graphml then GraphML.new.to_graph(nodes, edges)
       else puts "Unknown format: #{options.format}"
       end      
       
@@ -100,7 +100,7 @@ class BrewGraph
 end
 
 class Dot
-  def self.to_graph(nodes, edges)
+  def to_graph(nodes, edges)
     dot = []
     dot << 'digraph G {'
     nodes.each { |node| dot << create_node(node) }      
@@ -111,42 +111,75 @@ class Dot
   
   private
   
-    def self.create_node(node)
+    def create_node(node)
       %Q(  "#{node}";)
     end
     
-    def self.create_edge(edge)
+    def create_edge(edge)
       %Q(  "#{edge[0]}" -> "#{edge[1]}";)
     end
 end
 
 class GraphML
-  require 'rubygems'  
-  
-  def self.to_graph(nodes, edges)
-    xml = Builder::XmlMarkup.new( :indent => 2 )
-    xml.instruct! :xml, :encoding => "UTF-8"
-    xml.graphml('xmlns' => 'http://graphml.graphdrawing.org/xmlns') {
-      xml.graph('id' => 'G', 'edgedefault' => 'directed') {
-        nodes.each do |node|
-          xml.node('id' => "#{node}")
-        end
-        edges.each do |edge|
-          xml.edge('source' => edge[0], 'target' => edge[1])
-        end
-      }
-    }
-  end
-  
-  def self.const_missing(name)
-    # Load the Builder gem on demand.
-    if name == :Builder
-      require 'builder'
-      const_get(name)
-    else
-      super
+  def to_graph(nodes, edges)
+    out = []
+    out << header
+    out << '<graph edgedefault="directed" id="G">'
+    nodes.each do |node|
+      out << create_node(node)
     end
+    edges.each do |edge|
+      out << create_edge(edge)
+    end
+    out << '</graph>'
+    out << '</graphml>'
+    out.join("\n")    
   end
+  
+  private
+  
+    def header
+<<-EOS
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<graphml 
+  xmlns="http://graphml.graphdrawing.org/xmlns" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:y="http://www.yworks.com/xml/graphml" 
+  xmlns:yed="http://www.yworks.com/xml/yed/3" 
+  xsi:schemaLocation="
+    http://graphml.graphdrawing.org/xmlns 
+    http://www.yworks.com/xml/schema/graphml/1.1/ygraphml.xsd">    
+  <key for="node" id="d0" yfiles.type="nodegraphics"/>
+  <key for="edge" id="d1" yfiles.type="edgegraphics"/>
+EOS
+    end
+  
+    def create_node(node)
+<<-EOS
+    <node id="#{node}">
+      <data key="d0">
+        <y:ShapeNode>
+          <y:NodeLabel>#{node}</y:NodeLabel>
+          <y:Shape type="ellipse"/>
+        </y:ShapeNode>
+      </data>
+    </node>
+EOS
+    end
+    
+    def create_edge(edge)
+      @edge_id ||= 0
+      @edge_id += 1
+<<-EOS
+    <edge id="e#{@edge_id}" source="#{edge[0]}" target="#{edge[1]}">
+      <data key="d1">
+        <y:PolyLineEdge>
+          <y:BendStyle smoothed="true"/>
+        </y:PolyLineEdge>
+      </data>
+    </edge>
+EOS
+    end
 end
 
 brew = BrewGraph.new(ARGV)
