@@ -174,6 +174,7 @@ EOS
     <edge id="e#{@edge_id}" source="#{edge[0]}" target="#{edge[1]}">
       <data key="d1">
         <y:PolyLineEdge>
+          <y:Arrows source="none" target="delta"/>
           <y:BendStyle smoothed="true"/>
         </y:PolyLineEdge>
       </data>
