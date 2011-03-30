@@ -11,23 +11,20 @@ class BrewGraph
     options = parse_options
     
     data = case options.graph
-      when :all then deps_all
       when :installed then 
         deps_all.keep_if do |formula, deps|
           installed.include?(formula)
         end
+      when :all then deps_all
       end
     
     graph = case options.format
       when :dot then Dot.new.to_graph(data)
       when :graphml then GraphML.new.to_graph(data)
-      else puts "Unknown format: #{options.format}"
       end      
       
     if options.output
-      File.open(options.output, 'w') do |file|
-        file.write(graph)
-      end
+      File.open(options.output, 'w') { |file| file.write(graph) }
     else
       puts graph
     end
@@ -90,11 +87,7 @@ class BrewGraph
       all = %x[brew deps --all].split("\n")
       all.each do |s|
         node,deps = s.split(":")
-        data[node] = if deps
-          deps.strip.split(" ")
-        else
-          nil
-        end
+        data[node] = deps.nil? ? nil : deps.strip.split(" ")
       end
       data
     end
