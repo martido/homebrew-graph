@@ -8,7 +8,7 @@ class BrewGraph
   end
   
   def run
-    options = parse_options
+    options = parse_options(@arguments)
     
     data = case options.graph
       when :installed then 
@@ -32,7 +32,7 @@ class BrewGraph
   
   private
   
-    def parse_options      
+    def parse_options(arguments)
       options = default_options
       
       opts = OptionParser.new do |opts|
@@ -61,7 +61,7 @@ class BrewGraph
       end
       
       begin
-        opts.parse!(@arguments)
+        opts.parse!(arguments)
       rescue OptionParser::InvalidOption, 
              OptionParser::InvalidArgument, 
              OptionParser::MissingArgument => e
