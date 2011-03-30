@@ -9,13 +9,18 @@ class BrewGraph
   
   def run
     options = parse_options
-        
-    nodes = send(options.graph)
-    edges = edges_between(nodes)
+    
+    data = case options.graph
+      when :all then deps_all
+      when :installed then 
+        deps_all.keep_if do |formula, deps|
+          installed.include?(formula)
+        end
+      end
     
     graph = case options.format
-      when :dot then Dot.new.to_graph(nodes, edges)
-      when :graphml then GraphML.new.to_graph(nodes, edges)
+      when :dot then Dot.new.to_graph(data)
+      when :graphml then GraphML.new.to_graph(data)
       else puts "Unknown format: #{options.format}"
       end      
       
@@ -74,37 +79,40 @@ class BrewGraph
       opts.graph = :installed;
       opts.format = :dot;
       opts
-    end
-    
-    def all
-      %x[brew search].split("\n")
-    end
+    end    
     
     def installed
-      %x[brew list].split("\n")
-    end
+      @installed ||= %x[brew list].split("\n")
+    end    
     
-    def deps(formula)
-      %x[brew deps #{formula}].split("\n")
-    end
-    
-    def edges_between(nodes)
-      edges = []
-      nodes.each do |formula|
-        deps(formula).each do |dependent|
-          edges << [formula, dependent]
+    def deps_all
+      data = {}
+      all = %x[brew deps --all].split("\n")
+      all.each do |s|
+        node,deps = s.split(":")
+        data[node] = if deps
+          deps.strip.split(" ")
+        else
+          nil
         end
       end
-      edges
+      data
     end
 end
 
 class Dot
-  def to_graph(nodes, edges)
+  def to_graph(data)
     dot = []
     dot << 'digraph G {'
-    nodes.each { |node| dot << create_node(node) }      
-    edges.each { |edge| dot << create_edge(edge) }
+    data.each_key do |node|
+      dot << create_node(node)
+    end
+    data.each_pair do |source, targets|
+      next if targets.nil?
+      targets.each do |target|
+        dot << create_edge(source, target)
+      end
+    end
     dot << '}'
     dot.join("\n")
   end
@@ -115,23 +123,26 @@ class Dot
       %Q(  "#{node}";)
     end
     
-    def create_edge(edge)
-      %Q(  "#{edge[0]}" -> "#{edge[1]}";)
+    def create_edge(source, target)
+      %Q(  "#{source}" -> "#{target}";)
     end
 end
 
 class GraphML
-  def to_graph(nodes, edges)
+  def to_graph(data)
     out = []
     out << header
-    out << '<graph edgedefault="directed" id="G">'
-    nodes.each do |node|
+    out << '  <graph edgedefault="directed" id="G">'
+    data.each_key do |node|
       out << create_node(node)
     end
-    edges.each do |edge|
-      out << create_edge(edge)
+    data.each_pair do |source, targets|
+      next if targets.nil?
+      targets.each do |target|
+        out << create_edge(source, target)
+      end
     end
-    out << '</graph>'
+    out << '  </graph>'
     out << '</graphml>'
     out.join("\n")    
   end
@@ -167,11 +178,11 @@ EOS
 EOS
     end
     
-    def create_edge(edge)
+    def create_edge(source, target)
       @edge_id ||= 0
       @edge_id += 1
 <<-EOS
-    <edge id="e#{@edge_id}" source="#{edge[0]}" target="#{edge[1]}">
+    <edge id="e#{@edge_id}" source="#{source}" target="#{target}">
       <data key="d1">
         <y:PolyLineEdge>
           <y:Arrows source="none" target="delta"/>
