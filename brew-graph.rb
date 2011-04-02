@@ -187,5 +187,15 @@ EOS
     end
 end
 
+if RUBY_VERSION =~ /1\.8/
+  class Hash
+    def keep_if(&block)
+      delete_if do |key, value|
+        !block.call(key, value)
+      end
+    end
+  end
+end
+
 brew = BrewGraph.new(ARGV)
 brew.run
