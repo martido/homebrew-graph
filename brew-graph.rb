@@ -21,12 +21,12 @@ class BrewGraph
       end
 
     graph = case options.format
-      when :dot then Dot.new.to_graph(data)
-      when :graphml then GraphML.new.to_graph(data)
+      when :dot then Dot.new(data)
+      when :graphml then GraphML.new(data)
       end
 
     if options.output
-      File.open(options.output, 'w') { |file| file.write(graph) }
+      File.open(options.output, 'w') { |file| file.write(graph.draw) }
     else
       puts graph
     end
@@ -96,13 +96,18 @@ class BrewGraph
 end
 
 class Dot
-  def to_graph(data)
+
+  def initialize(data)
+    @data = data
+  end
+
+  def draw
     dot = []
     dot << 'digraph G {'
-    data.each_key do |node|
+    @data.each_key do |node|
       dot << create_node(node)
     end
-    data.each_pair do |source, targets|
+    @data.each_pair do |source, targets|
       next if targets.nil?
       targets.each do |target|
         dot << create_edge(source, target)
@@ -124,14 +129,19 @@ class Dot
 end
 
 class GraphML
-  def to_graph(data)
+
+  def initialize(data)
+    @data = data
+  end
+
+  def draw
     out = []
     out << header
     out << '  <graph edgedefault="directed" id="G">'
-    data.each_key do |node|
+    @data.each_key do |node|
       out << create_node(node)
     end
-    data.each_pair do |source, targets|
+    @data.each_pair do |source, targets|
       next if targets.nil?
       targets.each do |target|
         out << create_edge(source, target)
