@@ -18,11 +18,15 @@ class BrewGraph
           installed.include?(formula)
         end
       when :all then deps_all
+      else
+        raise "Did not recognize value for option 'graph': #{options.graph}"
       end
 
     graph = case options.format
       when :dot then Dot.new(data)
       when :graphml then GraphML.new(data)
+      else
+        raise "Did not recognize value for option 'format': #{options.format}"
       end
 
     if options.output
@@ -75,8 +79,8 @@ class BrewGraph
 
     def default_options
       opts = OpenStruct.new
-      opts.graph = :installed;
-      opts.format = :dot;
+      opts.graph = :installed
+      opts.format = :dot
       opts
     end
 
@@ -187,7 +191,7 @@ EOS
       @edge_id ||= 0
       @edge_id += 1
 <<-EOS
-    <edge id="e#{@edge_id}" source="#{source}" target="#{target}">
+    <edge id="e#@edge_id" source="#{source}" target="#{target}">
       <data key="d1">
         <y:PolyLineEdge>
           <y:Arrows source="none" target="delta"/>
