@@ -22,6 +22,8 @@ class BrewGraph
         raise "Did not recognize value for option 'graph': #{options.graph}"
       end
 
+    sanitize(data)
+
     graph = case options.format
       when :dot then Dot.new(data)
       when :graphml then GraphML.new(data)
@@ -96,6 +98,21 @@ class BrewGraph
         data[node] = deps.nil? ? nil : deps.strip.split(" ")
       end
       data
+    end
+
+    def print_deps(data)
+      data.each_pair do |source, targets|
+        puts "#{source} -> #{targets.inspect}"
+      end
+    end
+
+    def sanitize(data)
+      # Remove not installed, optional dependencies
+      data.each_pair do |source, targets|
+        targets.keep_if do |target|
+          data.include?(target)
+        end
+      end
     end
 end
 
@@ -208,6 +225,14 @@ if RUBY_VERSION =~ /1\.8/
     def keep_if(&block)
       delete_if do |key, value|
         !block.call(key, value)
+      end
+    end
+  end
+
+  class Array
+    def keep_if(&block)
+      delete_if do |elem|
+        !block.call(elem)
       end
     end
   end
