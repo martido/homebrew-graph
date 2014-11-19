@@ -34,7 +34,7 @@ class BrewGraph
     if options.output
       File.open(options.output, 'w') { |file| file.write(graph.draw) }
     else
-      puts graph
+      puts graph.draw
     end
   end
 
