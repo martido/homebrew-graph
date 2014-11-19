@@ -94,8 +94,8 @@ class BrewGraph
       data = {}
       all = %x[brew deps --all].split("\n")
       all.each do |s|
-        node,deps = s.split(":")
-        data[node] = deps.nil? ? nil : deps.strip.split(" ")
+        node,deps = s.split(':')
+        data[node] = deps.nil? ? nil : deps.strip.split(' ')
       end
       data
     end
@@ -208,7 +208,7 @@ EOS
       @edge_id ||= 0
       @edge_id += 1
 <<-EOS
-    <edge id="e#@edge_id" source="#{source}" target="#{target}">
+    <edge id="e#{@edge_id}" source="#{source}" target="#{target}">
       <data key="d1">
         <y:PolyLineEdge>
           <y:Arrows source="none" target="delta"/>
