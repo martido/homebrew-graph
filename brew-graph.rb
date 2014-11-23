@@ -9,15 +9,19 @@ class BrewGraph
   end
 
   def run
-    graph = @options[:graph]
+    all = @options[:all]
+    installed = @options[:installed]
     format = @options[:format]
     output = @options[:output]
 
-    data = case graph
-      when :installed then deps(:installed)
-      when :all then deps(:all)
+    if (all and installed) or (not all and not installed)
+        abort 'Specify either --all or --installed'
+    end
+
+    data = if all
+        deps(:all)
       else
-        raise "Did not recognize value for option 'graph': #{graph}"
+        deps(:installed)
       end
 
     sanitize(data)
@@ -40,7 +44,8 @@ class BrewGraph
 
     def parse_options(arguments)
       options = {}
-      options[:graph] = :installed
+      options[:all] = false
+      options[:installed] = false
       options[:format] = :dot
 
       opts = OptionParser.new do |opts|
@@ -48,12 +53,6 @@ class BrewGraph
         opts.on('-h', '--help'  ) do
           puts opts
           exit
-        end
-
-        opts.on('-g', '--graph OPTION', [:installed, :all],
-                'Create graph for <installed|all> Homebrew formulae',
-                'Default: installed') do |g|
-          options[:graph] = g
         end
 
         opts.on('-f', '--format FORMAT', [:dot, :graphml],
@@ -66,6 +65,17 @@ class BrewGraph
                 'Write output to FILE instead of stdout') do |o|
           options[:output] = o
         end
+
+        opts.on('--all', [:all],
+                'Create graph for all Homebrew formulae') do
+          options[:all] = true
+        end
+
+        opts.on('--installed', [:installed],
+                'Create graph for installed Homebrew formulae') do
+          options[:installed] = true
+        end
+
       end
 
       begin
