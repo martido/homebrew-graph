@@ -13,11 +13,8 @@ class BrewGraph
     options = parse_options(@arguments)
 
     data = case options.graph
-      when :installed then
-        deps_all.keep_if do |formula, deps|
-          installed.include?(formula)
-        end
-      when :all then deps_all
+      when :installed then deps(:installed)
+      when :all then deps(:all)
       else
         raise "Did not recognize value for option 'graph': #{options.graph}"
       end
@@ -86,18 +83,21 @@ class BrewGraph
       opts
     end
 
-    def installed
-      @installed ||= %x[brew list].split("\n")
-    end
-
-    def deps_all
+    def deps(argument)
       data = {}
-      all = %x[brew deps --all].split("\n")
-      all.each do |s|
+      deps = brew_deps(argument).split("\n")
+      deps.each do |s|
         node,deps = s.split(':')
         data[node] = deps.nil? ? nil : deps.strip.split(' ')
       end
       data
+    end
+
+    def brew_deps(argument)
+      case argument
+        when :all then %x[brew deps --all]
+        when :installed then %x[brew deps --installed]
+      end
     end
 
     def print_deps(data)
