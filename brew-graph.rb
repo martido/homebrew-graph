@@ -5,14 +5,13 @@ require 'optparse'
 class BrewGraph
 
   def initialize(arguments)
-    @arguments = arguments
+    @options = parse_options(arguments)
   end
 
   def run
-    options = parse_options(@arguments)
-    graph = options[:graph]
-    format = options[:format]
-    output = options[:output]
+    graph = @options[:graph]
+    format = @options[:format]
+    output = @options[:output]
 
     data = case graph
       when :installed then deps(:installed)
@@ -46,7 +45,7 @@ class BrewGraph
 
       opts = OptionParser.new do |opts|
 
-        opts.on('-h', '--help') do
+        opts.on('-h', '--help'  ) do
           puts opts
           exit
         end
