@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'optparse'
-require 'ostruct'
 
 class BrewGraph
 
@@ -11,25 +10,28 @@ class BrewGraph
 
   def run
     options = parse_options(@arguments)
+    graph = options[:graph]
+    format = options[:format]
+    output = options[:output]
 
-    data = case options.graph
+    data = case graph
       when :installed then deps(:installed)
       when :all then deps(:all)
       else
-        raise "Did not recognize value for option 'graph': #{options.graph}"
+        raise "Did not recognize value for option 'graph': #{graph}"
       end
 
     sanitize(data)
 
-    graph = case options.format
+    graph = case format
       when :dot then Dot.new(data)
       when :graphml then GraphML.new(data)
       else
-        raise "Did not recognize value for option 'format': #{options.format}"
+        raise "Did not recognize value for option 'format': #{format}"
       end
 
-    if options.output
-      File.open(options.output, 'w') { |file| file.write(graph.draw) }
+    if output
+      File.open(output, 'w') { |file| file.write(graph.draw) }
     else
       puts graph.draw
     end
@@ -38,7 +40,9 @@ class BrewGraph
   private
 
     def parse_options(arguments)
-      options = default_options
+      options = {}
+      options[:graph] = :installed
+      options[:format] = :dot
 
       opts = OptionParser.new do |opts|
 
@@ -50,18 +54,18 @@ class BrewGraph
         opts.on('-g', '--graph OPTION', [:installed, :all],
                 'Create graph for <installed|all> Homebrew formulae',
                 'Default: installed') do |g|
-          options.graph = g
+          options[:graph] = g
         end
 
         opts.on('-f', '--format FORMAT', [:dot, :graphml],
                 'Specify FORMAT of graph (dot, graphml)',
                 'Default: dot') do |f|
-          options.format = f
+          options[:format] = f
         end
 
         opts.on('-o', '--output FILE',
                 'Write output to FILE instead of stdout') do |o|
-          options.output = o
+          options[:output] = o
         end
       end
 
@@ -74,13 +78,6 @@ class BrewGraph
       end
 
       options
-    end
-
-    def default_options
-      opts = OpenStruct.new
-      opts.graph = :installed
-      opts.format = :dot
-      opts
     end
 
     def deps(argument)
