@@ -29,8 +29,6 @@ class BrewGraph
     graph = case format
       when :dot then Dot.new(data)
       when :graphml then GraphML.new(data)
-      else
-        raise "Did not recognize value for option 'format': #{format}"
       end
 
     if output
