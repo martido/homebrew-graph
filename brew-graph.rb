@@ -15,7 +15,7 @@ class BrewGraph
     output = @options[:output]
 
     if (all and installed) or (not all and not installed)
-        abort 'Specify either --all or --installed'
+      abort 'Specify either --all or --installed'
     end
 
     data = if all
@@ -27,8 +27,8 @@ class BrewGraph
     sanitize(data)
 
     graph = case format
-      when :dot then Dot.new(data)
-      when :graphml then GraphML.new(data)
+        when :dot then Dot.new(data)
+        when :graphml then GraphML.new(data)
       end
 
     if output
