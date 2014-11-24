@@ -32,9 +32,9 @@ class BrewGraph
       end
 
     if output
-      File.open(output, 'w') { |file| file.write(graph.draw) }
+      File.open(output, 'w') { |file| file.write(graph) }
     else
-      puts graph.draw
+      puts graph
     end
   end
 
@@ -126,7 +126,7 @@ class Dot
     @data = data
   end
 
-  def draw
+  def to_s
     dot = []
     dot << 'digraph G {'
     @data.each_key do |node|
@@ -159,7 +159,7 @@ class GraphML
     @data = data
   end
 
-  def draw
+  def to_s
     out = []
     out << header
     out << '  <graph edgedefault="directed" id="G">'
