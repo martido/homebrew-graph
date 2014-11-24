@@ -48,14 +48,15 @@ class BrewGraph
 
       opts = OptionParser.new do |opts|
 
+        opts.banner = 'Usage: brew-graph [-f] [-o] [--all] [--installed]'
+
         opts.on('-h', '--help'  ) do
           puts opts
           exit
         end
 
         opts.on('-f', '--format FORMAT', [:dot, :graphml],
-                'Specify FORMAT of graph (dot, graphml)',
-                'Default: dot') do |f|
+                'Specify FORMAT of graph (dot, graphml). Default: dot') do |f|
           options[:format] = f
         end
 
