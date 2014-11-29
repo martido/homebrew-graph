@@ -31,7 +31,7 @@ class BrewGraph
       end
 
     if installed
-      sanitize(data)
+      remove_optional_deps(data)
     end
 
     graph = case format
@@ -126,8 +126,8 @@ class BrewGraph
       end
     end
 
-    def sanitize(data)
-      # Remove not installed, optional dependencies
+    # Remove uninstalled, optional dependencies
+    def remove_optional_deps(data)
       data.each_pair do |source, targets|
         targets.keep_if do |target|
           data.include?(target)
