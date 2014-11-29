@@ -4,13 +4,13 @@ require 'optparse'
 
 class BrewGraph
 
-  def initialize(arguments)
-    @options = parse_options(arguments)
+  def initialize(argv)
+    @options = parse_options(argv)
 
     # If there's one or more remaining arguments, take the first one
     # and assume that it is the name of a formula
-    if arguments.length >= 1
-      @formula = arguments.first
+    if argv.length >= 1
+      @formula = argv.first
     end
   end
 
@@ -48,7 +48,7 @@ class BrewGraph
 
   private
 
-    def parse_options(arguments)
+    def parse_options(argv)
       options = {}
       options[:all] = false
       options[:installed] = false
@@ -86,7 +86,7 @@ class BrewGraph
       end
 
       begin
-        opts.parse!(arguments)
+        opts.parse!(argv)
       rescue OptionParser::InvalidOption,
              OptionParser::InvalidArgument,
              OptionParser::MissingArgument => e
@@ -96,9 +96,9 @@ class BrewGraph
       options
     end
 
-    def deps(argument)
+    def deps(arg)
       data = {}
-      deps = brew_deps(argument).split("\n")
+      deps = brew_deps(arg).split("\n")
       deps.each do |s|
         node,deps = s.split(':')
         data[node] = deps.nil? ? nil : deps.strip.split(' ')
@@ -106,17 +106,17 @@ class BrewGraph
       data
     end
 
-    def brew_deps(argument)
-      case argument
+    def brew_deps(arg)
+      case arg
         when :all then %x[brew deps --all]
         when :installed then %x[brew deps --installed]
         else # Treat argument as the name of a formula
-          out = %x[brew deps #{argument}]
+          out = %x[brew deps #{arg}]
           unless $? == 0 # Check exit code
             abort
           end
           # Transform output to the form "formula: dep1 dep2 dep3 ..."
-          "#{argument}: #{out.split("\n").map { |dep| dep.strip }.join(' ')}"
+          "#{arg}: #{out.split("\n").map { |dep| dep.strip }.join(' ')}"
       end
     end
 
