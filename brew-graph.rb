@@ -6,6 +6,12 @@ class BrewGraph
 
   def initialize(arguments)
     @options = parse_options(arguments)
+
+    # If there's one or more remaining arguments, take the first one
+    # and assume that it is the name of a formula
+    if arguments.length >= 1
+      @formula = arguments.first
+    end
   end
 
   def run
@@ -14,17 +20,19 @@ class BrewGraph
     format = @options[:format]
     output = @options[:output]
 
-    if (all and installed) or (not all and not installed)
-      abort 'Specify either --all or --installed'
-    end
-
-    data = if all
-        deps(:all)
-      else
+    data = if installed
         deps(:installed)
+      elsif all
+        deps(:all)
+      elsif @formula
+        deps(@formula)
+      else
+        abort 'This command requires one of --installed or --all, or a formula argument'
       end
 
-    sanitize(data)
+    if installed
+      sanitize(data)
+    end
 
     graph = case format
         when :dot then Dot.new(data)
@@ -48,7 +56,7 @@ class BrewGraph
 
       opts = OptionParser.new do |opts|
 
-        opts.banner = 'Usage: brew-graph [-f] [-o] [--all] [--installed]'
+        opts.banner = 'Usage: brew-graph [-f] [-o] [--all] [--installed] formula'
 
         opts.on('-h', '--help'  ) do
           puts opts
@@ -102,6 +110,13 @@ class BrewGraph
       case argument
         when :all then %x[brew deps --all]
         when :installed then %x[brew deps --installed]
+        else # Treat argument as the name of a formula
+          out = %x[brew deps #{argument}]
+          unless $? == 0 # Check exit code
+            abort
+          end
+          # Transform output to the form "formula: dep1 dep2 dep3 ..."
+          "#{argument}: #{out.split("\n").map { |dep| dep.strip }.join(' ')}"
       end
     end
 
