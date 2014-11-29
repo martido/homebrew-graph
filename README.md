@@ -20,8 +20,8 @@ If within this repository directory, type `ruby brew-graph.rb -h` to display the
 You can use Graphviz to visualize Dot graphs.
 
     brew install graphviz
-    brew graph | dot -Tsvg -odependency_graph.svg
-    open dependency_graph.svg
+    brew graph --installed | dot -Tpng -ograph.png
+    open graph.png
 
 You can use the [yEd][1] graph editor to visualize GraphML markup. The created markup uses yFiles's extensions to GraphML and heavily relies on defaults to keep the output reasonably small. It contains no layout information because yEd already provides an exhaustive set of algorithms.
 
