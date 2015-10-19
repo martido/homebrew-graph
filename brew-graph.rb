@@ -101,7 +101,7 @@ class BrewGraph
       deps = brew_deps(arg).split("\n")
       deps.each do |s|
         node,deps = s.split(':')
-        data[node] = deps.nil? ? nil : deps.strip.split(' ')
+        data[node] = deps.nil? ? nil : deps.strip.split(' ').uniq
       end
       data
     end
