@@ -145,8 +145,9 @@ class Dot
   def to_s
     dot = []
     dot << 'digraph G {'
-    @data.each_key do |node|
-      dot << create_node(node)
+    dependencies = @data.values.flatten.uniq
+     @data.each_key do |node|
+      dot << create_node(node, !dependencies.include?(node))
     end
     @data.each_pair do |source, targets|
       next if targets.nil?
@@ -160,8 +161,8 @@ class Dot
 
   private
 
-    def create_node(node)
-      %Q(  "#{node}";)
+    def create_node(node, leaf)
+      %Q(  "#{node}"#{leaf ? " [style=filled]" : ""};)
     end
 
     def create_edge(source, target)
