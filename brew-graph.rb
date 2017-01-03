@@ -19,6 +19,7 @@ class BrewGraph
     installed = @options[:installed]
     format = @options[:format]
     output = @options[:output]
+    highlight_leaves = @options[:highlight_leaves]
 
     data = if installed
         deps(:installed)
@@ -35,8 +36,8 @@ class BrewGraph
     end
 
     graph = case format
-        when :dot then Dot.new(data)
-        when :graphml then GraphML.new(data)
+        when :dot then Dot.new(data, highlight_leaves)
+        when :graphml then GraphML.new(data, highlight_leaves)
       end
 
     if output
@@ -53,10 +54,11 @@ class BrewGraph
       options[:all] = false
       options[:installed] = false
       options[:format] = :dot
+      options[:highlight_leaves] = false
 
       opts = OptionParser.new do |opts|
 
-        opts.banner = 'Usage: brew-graph [-f] [-o] [--all] [--installed] formula'
+        opts.banner = 'Usage: brew-graph [-f] [-o] [--highlight-leaves] [--all] [--installed] formula'
 
         opts.on('-h', '--help'  ) do
           puts opts
@@ -66,6 +68,11 @@ class BrewGraph
         opts.on('-f', '--format FORMAT', [:dot, :graphml],
                 'Specify FORMAT of graph (dot, graphml). Default: dot') do |f|
           options[:format] = f
+        end
+
+        opts.on('--highlight-leaves', [:highlight_leaves],
+                'Highlight formulae that are not dependencies of another formula. Default: false') do
+          options[:highlight_leaves] = true
         end
 
         opts.on('-o', '--output FILE',
@@ -136,18 +143,26 @@ class BrewGraph
     end
 end
 
-class Dot
+class Graph
 
-  def initialize(data)
+  def initialize(data, highlight_leaves)
     @data = data
+    @dependencies = data.values.flatten.uniq
+    @highlight_leaves = highlight_leaves
   end
+
+  def is_leaf?(node)
+    !@dependencies.include?(node)
+  end
+end
+
+class Dot < Graph
 
   def to_s
     dot = []
     dot << 'digraph G {'
-    dependencies = @data.values.flatten.uniq
-     @data.each_key do |node|
-      dot << create_node(node, !dependencies.include?(node))
+    @data.each_key do |node|
+      dot << create_node(node, @highlight_leaves && is_leaf?(node))
     end
     @data.each_pair do |source, targets|
       next if targets.nil?
@@ -170,18 +185,14 @@ class Dot
     end
 end
 
-class GraphML
-
-  def initialize(data)
-    @data = data
-  end
+class GraphML < Graph
 
   def to_s
     out = []
     out << header
     out << '  <graph edgedefault="directed" id="G">'
     @data.each_key do |node|
-      out << create_node(node)
+      out << create_node(node, @highlight_leaves && is_leaf?(node))
     end
     @data.each_pair do |source, targets|
       next if targets.nil?
@@ -212,12 +223,14 @@ class GraphML
 EOS
     end
 
-    def create_node(node)
+    def create_node(node, leaf)
+      fill_color = leaf ? "#C0C0C0" : "#FFFFFF"
 <<-EOS
     <node id="#{node}">
       <data key="d0">
         <y:ShapeNode>
           <y:NodeLabel>#{node}</y:NodeLabel>
+          <y:Fill color="#{fill_color}"/>
           <y:Shape type="ellipse"/>
         </y:ShapeNode>
       </data>
