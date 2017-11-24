@@ -20,6 +20,7 @@ class BrewGraph
     format = @options[:format]
     output = @options[:output]
     highlight_leaves = @options[:highlight_leaves]
+    show_outdated = @options[:outdated]
 
     data = if installed
         deps(:installed)
@@ -36,8 +37,8 @@ class BrewGraph
     end
 
     graph = case format
-        when :dot then Dot.new(data, highlight_leaves)
-        when :graphml then GraphML.new(data, highlight_leaves)
+        when :dot then Dot.new(data, highlight_leaves, show_outdated && outdated)
+        when :graphml then GraphML.new(data, highlight_leaves, show_outdated && outdated)
       end
 
     if output
@@ -55,10 +56,11 @@ class BrewGraph
       options[:installed] = false
       options[:format] = :dot
       options[:highlight_leaves] = false
+      options[:outdated] = true
 
       opts = OptionParser.new do |opts|
 
-        opts.banner = 'Usage: brew-graph [-f] [-o] [--highlight-leaves] [--all] [--installed] formula'
+        opts.banner = 'Usage: brew-graph [-f] [-o] [--highlight-leaves] [--all] [--installed] [--outdated] formula'
 
         opts.on('-h', '--help'  ) do
           puts opts
@@ -90,6 +92,10 @@ class BrewGraph
           options[:installed] = true
         end
 
+        opts.on('--outdated', [:outdated],
+                'Highlight formulae that are outdated. Default: false') do
+          options[:outdated] = true
+        end
       end
 
       begin
@@ -113,6 +119,10 @@ class BrewGraph
       data
     end
 
+    def outdated
+      brew_outdated.split("\n")
+    end
+
     def brew_deps(arg)
       case arg
         when :all then %x[brew deps --all]
@@ -125,6 +135,10 @@ class BrewGraph
           # Transform output to the form "formula: dep1 dep2 dep3 ..."
           "#{arg}: #{out.split("\n").map { |dep| dep.strip }.join(' ')}"
       end
+    end
+
+    def brew_outdated
+      %x[brew outdated]
     end
 
     def print_deps(data)
@@ -145,14 +159,19 @@ end
 
 class Graph
 
-  def initialize(data, highlight_leaves)
+  def initialize(data, highlight_leaves, outdated)
     @data = data
     @dependencies = data.values.flatten.uniq
     @highlight_leaves = highlight_leaves
+    @outdated = outdated
   end
 
   def is_leaf?(node)
     !@dependencies.include?(node)
+  end
+
+  def is_outdated?(node)
+    @outdated.include?(node)
   end
 end
 
@@ -162,7 +181,7 @@ class Dot < Graph
     dot = []
     dot << 'digraph G {'
     @data.each_key do |node|
-      dot << create_node(node, @highlight_leaves && is_leaf?(node))
+      dot << create_node(node, @highlight_leaves && is_leaf?(node), @outdated && is_outdated?(node))
     end
     @data.each_pair do |source, targets|
       next if targets.nil?
@@ -176,8 +195,8 @@ class Dot < Graph
 
   private
 
-    def create_node(node, leaf)
-      %Q(  "#{node}"#{leaf ? " [style=filled]" : ""};)
+    def create_node(node, leaf, outdated)
+      %Q(  "#{node}"#{outdated ? " [style=filled;color=red2]" : leaf ? " [style=filled]" : ""};)
     end
 
     def create_edge(source, target)
@@ -224,7 +243,7 @@ EOS
     end
 
     def create_node(node, leaf)
-      fill_color = leaf ? "#C0C0C0" : "#FFFFFF"
+      fill_color = outdated ? "#FF6666": leaf ? "#C0C0C0" : "#FFFFFF"
 <<-EOS
     <node id="#{node}">
       <data key="d0">
