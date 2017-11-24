@@ -211,7 +211,7 @@ class GraphML < Graph
     out << header
     out << '  <graph edgedefault="directed" id="G">'
     @data.each_key do |node|
-      out << create_node(node, @highlight_leaves && is_leaf?(node))
+      out << create_node(node, @highlight_leaves && is_leaf?(node), @outdated && is_outdated?(node))
     end
     @data.each_pair do |source, targets|
       next if targets.nil?
@@ -242,7 +242,7 @@ class GraphML < Graph
 EOS
     end
 
-    def create_node(node, leaf)
+    def create_node(node, leaf, outdated)
       fill_color = outdated ? "#FF6666": leaf ? "#C0C0C0" : "#FFFFFF"
 <<-EOS
     <node id="#{node}">
