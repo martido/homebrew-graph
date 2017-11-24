@@ -195,8 +195,8 @@ class Dot < Graph
 
   private
 
-    def create_node(node, leaf, outdated)
-      %Q(  "#{node}"#{outdated ? " [style=filled;color=red2]" : leaf ? " [style=filled]" : ""};)
+    def create_node(node, is_leaf, is_outdated)
+      %Q(  "#{node}"#{is_outdated ? ' [style=filled;color=red2]' : is_leaf ? ' [style=filled]' : ''};)
     end
 
     def create_edge(source, target)
@@ -242,8 +242,8 @@ class GraphML < Graph
 EOS
     end
 
-    def create_node(node, leaf, outdated)
-      fill_color = outdated ? "#FF6666": leaf ? "#C0C0C0" : "#FFFFFF"
+    def create_node(node, is_leaf, is_outdated)
+      fill_color = is_outdated ? '#FF6666': is_leaf ? '#C0C0C0' : '#FFFFFF'
 <<-EOS
     <node id="#{node}">
       <data key="d0">
