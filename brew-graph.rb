@@ -20,7 +20,7 @@ class BrewGraph
     format = @options[:format]
     output = @options[:output]
     highlight_leaves = @options[:highlight_leaves]
-    show_outdated = @options[:outdated]
+    highlight_outdated = @options[:highlight_outdated]
 
     data = if installed
         deps(:installed)
@@ -37,8 +37,8 @@ class BrewGraph
     end
 
     graph = case format
-        when :dot then Dot.new(data, highlight_leaves, show_outdated && outdated)
-        when :graphml then GraphML.new(data, highlight_leaves, show_outdated && outdated)
+        when :dot then Dot.new(data, highlight_leaves, highlight_outdated && outdated)
+        when :graphml then GraphML.new(data, highlight_leaves, highlight_outdated && outdated)
       end
 
     if output
@@ -56,11 +56,11 @@ class BrewGraph
       options[:installed] = false
       options[:format] = :dot
       options[:highlight_leaves] = false
-      options[:outdated] = true
+      options[:highlight_outdated] = false
 
       opts = OptionParser.new do |opts|
 
-        opts.banner = 'Usage: brew-graph [-f] [-o] [--highlight-leaves] [--all] [--installed] [--outdated] formula'
+        opts.banner = 'Usage: brew-graph [-f] [-o] [--highlight-leaves] [--highlight-outdated] [--all] [--installed] formula'
 
         opts.on('-h', '--help'  ) do
           puts opts
@@ -77,6 +77,11 @@ class BrewGraph
           options[:highlight_leaves] = true
         end
 
+        opts.on('--highlight-outdated', [:highlight_outdated],
+                'Highlight formulae that are outdated. Default: false') do
+          options[:highlight_outdated] = true
+        end
+
         opts.on('-o', '--output FILE',
                 'Write output to FILE instead of stdout') do |o|
           options[:output] = o
@@ -90,11 +95,6 @@ class BrewGraph
         opts.on('--installed', [:installed],
                 'Create graph for installed Homebrew formulae') do
           options[:installed] = true
-        end
-
-        opts.on('--outdated', [:outdated],
-                'Highlight formulae that are outdated. Default: false') do
-          options[:outdated] = true
         end
       end
 
