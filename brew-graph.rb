@@ -132,8 +132,15 @@ class BrewGraph
           unless $? == 0 # Check exit code
             abort
           end
-          # Transform output to the form "formula: dep1 dep2 dep3 ..."
-          "#{arg}: #{out.split("\n").map { |dep| dep.strip }.join(' ')}"
+          # Transform output to the form "formula: dep1 dep2 dep3 ..." and
+          # add additional lines "dep1:", "dep2:", "dep3:", etc. for all dependencies
+          deps = out.split("\n")
+          res = []
+          res << "#{arg}: #{deps.map { |dep| dep.strip }.join(' ')}"
+          deps.each do |dep|
+            res << "#{dep}:"
+          end
+          res.join("\n")
       end
     end
 
