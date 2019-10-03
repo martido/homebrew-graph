@@ -7,10 +7,9 @@ class BrewGraph
   def initialize(argv)
     @options = parse_options(argv)
 
-    # If there's one or more remaining arguments, take the first one
-    # and assume that it is the name of a formula
+    # Assume that any remaining arguments are formula names.
     if argv.length >= 1
-      @formula = argv.first
+      @formulae = argv.dup
     end
   end
 
@@ -26,10 +25,10 @@ class BrewGraph
         deps(:installed)
       elsif all
         deps(:all)
-      elsif @formula
-        deps(@formula)
+      elsif @formulae
+        deps(@formulae)
       else
-        abort 'This command requires one of --installed or --all, or a formula argument'
+        abort 'This command requires one of --installed or --all, or one or more formula arguments.'
       end
 
     if installed
@@ -60,7 +59,13 @@ class BrewGraph
 
       opts = OptionParser.new do |opts|
 
-        opts.banner = 'Usage: brew-graph [-f] [-o] [--highlight-leaves] [--highlight-outdated] [--all] [--installed] formula'
+        opts.banner = %Q{Usage: brew-graph [-f] [-o] [--highlight-leaves] [--highlight-outdated] <formulae|--installed|--all>
+Examples:
+  brew graph --installed                                - Create a dependency graph of all installed formulae and print it in dot format to stdout.
+  brew graph -f graphml --installed                     - Same as before, but output GraphML markup.
+  brew graph -f graphml graphviz python                 - Create a dependency graph of the 'graphviz' and 'python' formulae and print it in GraphML markup to stdout.
+  brew graph -f graphml -o deps.graphml graphviz python - Same as before, but output to a file named 'deps.graphml'.
+}
 
         opts.on('-h', '--help'  ) do
           puts opts
@@ -127,20 +132,31 @@ class BrewGraph
       case arg
         when :all then %x[brew deps --all]
         when :installed then %x[brew deps --installed]
-        else # Treat argument as the name of a formula
-          out = %x[brew deps #{arg}]
+        else # Treat arg as a list of formulae
+          out = %x[brew deps --for-each #{arg.join(' ')}]
           unless $? == 0 # Check exit code
             abort
           end
-          # Transform output to the form "formula: dep1 dep2 dep3 ..." and
-          # add additional lines "dep1:", "dep2:", "dep3:", etc. for all dependencies
-          deps = out.split("\n")
-          res = []
-          res << "#{arg}: #{deps.map { |dep| dep.strip }.join(' ')}"
-          deps.each do |dep|
-            res << "#{dep}:"
+          # Output is of the form
+          #   formula1: dep1 dep2 dep3 ...
+          #   formula2: dep1 dep2 dep3 ...
+          # We need to add additional lines
+          #   dep1:
+          #   dep2:
+          #   dep3:
+          # for all dependencies.
+          # This is consistent with the output of 'brew deps --installed'.
+          # Also, the GraphML markup language requires a separate <node>
+          # block for each node in the graph.
+          res = {}
+          out.split("\n").each do |line|
+            formula,deps = line.split(':')
+            res[formula] = deps.strip
+            deps.split(' ').each do |dep|
+              res[dep] = '' unless res.has_key? dep
+            end
           end
-          res.join("\n")
+          res.map { |k, v| "#{k}: #{v}" }.join("\n")
       end
     end
 

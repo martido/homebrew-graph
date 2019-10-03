@@ -18,7 +18,12 @@ If you installed using the above instructions, you can simply execute `brew grap
 
 If within this repository directory, type `ruby brew-graph.rb -h` to display the options.
 
-    Usage: brew-graph [-f] [-o] [--highlight-leaves] [--highlight-outdated] [--all] [--installed] formula
+    Usage: brew-graph [-f] [-o] [--highlight-leaves] [--highlight-outdated] <formulae|--installed|--all>
+    Examples:
+      brew graph --installed                                - Create a dependency graph of all installed formulae and print it in dot format to stdout.
+      brew graph -f graphml --installed                     - Same as before, but output GraphML markup.
+      brew graph -f graphml graphviz python                 - Create a dependency graph of the 'graphviz' and 'python' formulae and print it in GraphML markup to stdout.
+      brew graph -f graphml -o deps.graphml graphviz python - Same as before, but output to a file named 'deps.graphml'.
         -h, --help
         -f, --format FORMAT              Specify FORMAT of graph (dot, graphml). Default: dot
             --highlight-leaves           Highlight formulae that are not dependencies of another formula. Default: false
