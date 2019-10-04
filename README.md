@@ -1,3 +1,8 @@
+**Attention:** This repository has been renamed from `brew-graph` to `homebrew-graph` to adhere to the Homebrew naming conventions of [tap repositories][3].
+Please update your local clones or forks (for consistency only, GitHub makes sure everything still works for you):
+
+    git remote set-url origin https://github.com/martido/homebrew-graph
+
 # brew-graph
 
 `brew-graph` is a Ruby script that creates a dependency graph of installed or all available Homebrew formulae. The currently supported output options are *DOT* and *GraphML*.
@@ -47,3 +52,4 @@ You can use the [yEd][1] graph editor to visualize GraphML markup. The created m
 
 [1]: http://www.yworks.com/en/products_yed_about.html
 [2]: http://blog.jpalardy.com/posts/untangling-your-homebrew-dependencies
+[3]: https://docs.brew.sh/How-to-Create-and-Maintain-a-Tap
