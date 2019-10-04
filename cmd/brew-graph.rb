@@ -1,5 +1,36 @@
 #!/usr/bin/env ruby
 
+#:`brew graph` [options] <formula1> <formula2> ... | `--installed` | `--all`
+#:
+#:Create a dependency graph of Homebrew formulae.
+#:
+#:Options:
+#:
+#: `-h`, `--help`            Print this help message.
+#: `-f`, `--format FORMAT`   Specify FORMAT of graph (dot, graphml). Default: dot
+#: `--highlight-leaves`    Highlight formulae that are not dependencies of another
+#:                         formula. Default: false
+#: `--highlight-outdated`  Highlight formulae that are outdated. Default: false
+#: `-o`, `--output FILE`     Write output to FILE instead of stdout
+#: `--installed`           Create graph for installed Homebrew formulae
+#: `--all`                 Create graph for all Homebrew formulae
+#:
+#:Examples:
+#:
+#:`brew graph` `--installed`
+#: Create a dependency graph of installed formulae and
+#: print it in DOT format to stdout.
+#:
+#:`brew graph` `-f` graphml `--installed`
+#: Same as before, but output GraphML markup.
+#:
+#:`brew graph` <graphviz> <python>
+#: Create a dependency graph of 'graphviz' and 'python' and
+#: print it in DOT format to stdout.
+#:
+#:`brew graph` `-f` graphml `-o` deps.graphml <graphviz> <python>
+#: Same as before, but output GraphML markup to a file named 'deps.graphml'.
+
 require 'optparse'
 
 class BrewGraph
