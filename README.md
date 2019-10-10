@@ -9,7 +9,7 @@ Please update your local clones or forks (for consistency only, GitHub makes sur
 
 In general, if you'd like to know more about [Untangling Your Homebrew Dependencies][2], check out the blog post by Jonathan Palardy.  
 
-### Installation
+## Installation
 
     brew tap martido/homebrew-graph
     
