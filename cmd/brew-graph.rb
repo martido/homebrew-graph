@@ -59,7 +59,8 @@ class BrewGraph
       elsif @formulae
         deps(@formulae)
       else
-        abort 'This command requires one of --installed or --all, or one or more formula arguments.'
+        abort %Q{This command requires one of --installed or --all, or one or more formula arguments.
+See brew graph --help.}
       end
 
     if installed
@@ -90,7 +91,7 @@ class BrewGraph
 
       opts = OptionParser.new do |opts|
 
-        opts.banner = %Q{Usage: brew-graph [-f] [-o] [--highlight-leaves] [--highlight-outdated] <formulae|--installed|--all>
+        opts.banner = %Q{Usage: brew-graph [options] <formula1> <formula2> ... | --installed | --all
 Examples:
   brew graph --installed                                - Create a dependency graph of all installed formulae and print it in dot format to stdout.
   brew graph -f graphml --installed                     - Same as before, but output GraphML markup.
@@ -139,7 +140,7 @@ Examples:
       rescue OptionParser::InvalidOption,
              OptionParser::InvalidArgument,
              OptionParser::MissingArgument => e
-        abort "#{e.message.capitalize}\n#{opts}"
+        abort "#{e.message.capitalize}\nSee brew graph --help."
       end
 
       options
