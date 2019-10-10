@@ -5,37 +5,53 @@ Please update your local clones or forks (for consistency only, GitHub makes sur
 
 # brew-graph
 
-`brew-graph` is a Ruby script that creates a dependency graph of installed or all available Homebrew formulae. The currently supported output options are *DOT* and *GraphML*.
+`brew-graph` is a Ruby script that creates a dependency graph of Homebrew formulae. The currently supported output options are *DOT* and *GraphML*.
 
 In general, if you'd like to know more about [Untangling Your Homebrew Dependencies][2], check out the blog post by Jonathan Palardy.  
 
 ### Installation
 
-You can install `brew-graph` using the [tap repository](https://github.com/martido/homebrew-brew-graph): 
+    brew tap martido/homebrew-graph
+    
+**Note:** If you already have the brew-graph formula installed from [the old tap repository][4], uninstall it first:
 
-    brew install martido/brew-graph/brew-graph
-
-Alternatively, simply place `brew-graph.rb` somewhere in your `$PATH` as `brew-graph`.
+    brew uninstall brew-graph
+    brew untap martido/homebrew-brew-graph
 
 ## Usage
 
-If you installed using the above instructions, you can simply execute `brew graph -h` to see options.
+Type `brew graph --help`.
 
-If within this repository directory, type `ruby brew-graph.rb -h` to display the options.
-
-    Usage: brew-graph [-f] [-o] [--highlight-leaves] [--highlight-outdated] <formulae|--installed|--all>
+    brew graph [options] formula1 formula2 ... | --installed | --all
+    
+    Create a dependency graph of Homebrew formulae.
+    
+    Options:
+    
+     -h, --help            Print this help message.
+     -f, --format FORMAT   Specify FORMAT of graph (dot, graphml). Default: dot
+     --highlight-leaves    Highlight formulae that are not dependencies of another
+                           formula. Default: false
+     --highlight-outdated  Highlight formulae that are outdated. Default: false
+     -o, --output FILE     Write output to FILE instead of stdout
+     --installed           Create graph for installed Homebrew formulae
+     --all                 Create graph for all Homebrew formulae
+    
     Examples:
-      brew graph --installed                                - Create a dependency graph of all installed formulae and print it in dot format to stdout.
-      brew graph -f graphml --installed                     - Same as before, but output GraphML markup.
-      brew graph -f graphml graphviz python                 - Create a dependency graph of the 'graphviz' and 'python' formulae and print it in GraphML markup to stdout.
-      brew graph -f graphml -o deps.graphml graphviz python - Same as before, but output to a file named 'deps.graphml'.
-        -h, --help
-        -f, --format FORMAT              Specify FORMAT of graph (dot, graphml). Default: dot
-            --highlight-leaves           Highlight formulae that are not dependencies of another formula. Default: false
-            --highlight-outdated         Highlight formulae that are outdated. Default: false
-        -o, --output FILE                Write output to FILE instead of stdout
-            --all                        Create graph for all Homebrew formulae
-            --installed                  Create graph for installed Homebrew formulae
+    
+    brew graph --installed
+     Create a dependency graph of installed formulae and
+     print it in DOT format to stdout.
+    
+    brew graph -f graphml --installed
+     Same as before, but output GraphML markup.
+    
+    brew graph graphviz python
+     Create a dependency graph of 'graphviz' and 'python' and
+     print it in DOT format to stdout.
+    
+    brew graph -f graphml -o deps.graphml graphviz python
+     Same as before, but output GraphML markup to a file named 'deps.graphml'.
 
 ## Requirements
 You can use Graphviz to visualize DOT graphs.
@@ -53,3 +69,4 @@ You can use the [yEd][1] graph editor to visualize GraphML markup. The created m
 [1]: http://www.yworks.com/en/products_yed_about.html
 [2]: http://blog.jpalardy.com/posts/untangling-your-homebrew-dependencies
 [3]: https://docs.brew.sh/How-to-Create-and-Maintain-a-Tap
+[4]: https://github.com/martido/homebrew-brew-graph
