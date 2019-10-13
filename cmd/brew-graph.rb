@@ -162,8 +162,8 @@ Examples:
 
     def brew_deps(arg)
       case arg
-        when :all then %x[brew deps --all]
-        when :installed then %x[brew deps --installed]
+        when :all then %x[brew deps --1 --all]
+        when :installed then %x[brew deps --1 --installed]
         else # Treat arg as a list of formulae
           out = %x[brew deps --for-each #{arg.join(' ')}]
           unless $? == 0 # Check exit code
