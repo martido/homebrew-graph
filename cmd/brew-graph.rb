@@ -8,6 +8,7 @@
 #:
 #: `-h`, `--help`            Print this help message.
 #: `-f`, `--format FORMAT`   Specify FORMAT of graph (dot, graphml). Default: dot
+#: `--include-casks`       List formulae and casks
 #: `--highlight-leaves`    Highlight formulae that are not dependencies of another
 #:                         formula. Default: false
 #: `--highlight-outdated`  Highlight formulae that are outdated. Default: false
@@ -47,17 +48,18 @@ class BrewGraph
   def run
     all = @options[:all]
     installed = @options[:installed]
+    include_casks = @options[:include_casks]
     format = @options[:format]
     output = @options[:output]
     highlight_leaves = @options[:highlight_leaves]
     highlight_outdated = @options[:highlight_outdated]
 
     data = if installed
-        deps(:installed)
+        deps(:installed, include_casks)
       elsif all
-        deps(:all)
+        deps(:all, include_casks)
       elsif @formulae
-        deps(@formulae)
+        deps(@formulae, false)
       else
         abort %Q{This command requires one of --installed or --all, or one or more formula arguments.
 See brew graph --help.}
@@ -85,6 +87,7 @@ See brew graph --help.}
       options = {}
       options[:all] = false
       options[:installed] = false
+      options[:include_casks] = false
       options[:format] = :dot
       options[:highlight_leaves] = false
       options[:highlight_outdated] = false
@@ -133,6 +136,11 @@ Examples:
                 'Create graph for installed Homebrew formulae') do
           options[:installed] = true
         end
+
+        opts.on('--include-casks', [:include_casks],
+                'Include gasks in the graph. Default: false') do
+          options[:include_casks] = true
+        end
       end
 
       begin
@@ -146,9 +154,9 @@ Examples:
       options
     end
 
-    def deps(arg)
+    def deps(arg, include_casks)
       data = {}
-      deps = brew_deps(arg).split("\n")
+      deps = brew_deps(arg, include_casks).split("\n")
       deps.each do |s|
         node,deps = s.split(':')
         data[node] = deps.nil? ? nil : deps.strip.split(' ').uniq
@@ -160,10 +168,12 @@ Examples:
       brew_outdated.split("\n")
     end
 
-    def brew_deps(arg)
+    def brew_deps(arg, include_casks)
+      type = include_casks ? nil : '--formulae'
+
       case arg
-        when :all then %x[brew deps --1 --all]
-        when :installed then %x[brew deps --1 --installed]
+        when :all then %x[brew deps --1 --all #{type}]
+        when :installed then %x[brew deps --1 --installed #{type}]
         else # Treat arg as a list of formulae
           out = %x[brew deps --for-each #{arg.join(' ')}]
           unless $? == 0 # Check exit code
