@@ -36,6 +36,7 @@ Type `brew graph --help`.
      -o, --output FILE     Write output to FILE instead of stdout
      --installed           Create graph for installed Homebrew formulae
      --all                 Create graph for all Homebrew formulae
+     --include-casks       List formulae and casks
     
     Examples:
     
