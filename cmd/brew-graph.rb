@@ -6,13 +6,13 @@
 #:
 #:Options:
 #:
-#: `-h`, `--help`            Print this help message.
-#: `-f`, `--format FORMAT`   Specify FORMAT of graph (dot, graphml). Default: dot
-#: `--include-casks`       List formulae and casks
+#: `-h`, `--help`          Print this help message.
+#: `-f`, `--format FORMAT` Specify FORMAT of graph (dot, graphml). Default: dot
+#: `-o`, `--output FILE`   Write output to FILE instead of stdout
 #: `--highlight-leaves`    Highlight formulae that are not dependencies of another
 #:                         formula. Default: false
 #: `--highlight-outdated`  Highlight formulae that are outdated. Default: false
-#: `-o`, `--output FILE`     Write output to FILE instead of stdout
+#: `--include-casks`       List formulae and casks
 #: `--installed`           Create graph for installed Homebrew formulae
 #: `--all`                 Create graph for all Homebrew formulae
 #:
@@ -85,22 +85,16 @@ See brew graph --help.}
 
     def parse_options(argv)
       options = {}
-      options[:all] = false
-      options[:installed] = false
-      options[:include_casks] = false
       options[:format] = :dot
       options[:highlight_leaves] = false
       options[:highlight_outdated] = false
+      options[:include_casks] = false
+      options[:all] = false
+      options[:installed] = false
 
       opts = OptionParser.new do |opts|
 
-        opts.banner = %Q{Usage: brew-graph [options] <formula1> <formula2> ... | --installed | --all
-Examples:
-  brew graph --installed                                - Create a dependency graph of all installed formulae and print it in dot format to stdout.
-  brew graph -f graphml --installed                     - Same as before, but output GraphML markup.
-  brew graph -f graphml graphviz python                 - Create a dependency graph of the 'graphviz' and 'python' formulae and print it in GraphML markup to stdout.
-  brew graph -f graphml -o deps.graphml graphviz python - Same as before, but output to a file named 'deps.graphml'.
-}
+        opts.banner = 'Usage: brew-graph [options] <formula1> <formula2> ... | --installed | --all'
 
         opts.on('-h', '--help'  ) do
           puts opts
@@ -110,6 +104,11 @@ Examples:
         opts.on('-f', '--format FORMAT', [:dot, :graphml],
                 'Specify FORMAT of graph (dot, graphml). Default: dot') do |f|
           options[:format] = f
+        end
+
+        opts.on('-o', '--output FILE',
+                'Write output to FILE instead of stdout') do |o|
+          options[:output] = o
         end
 
         opts.on('--highlight-leaves', [:highlight_leaves],
@@ -122,9 +121,9 @@ Examples:
           options[:highlight_outdated] = true
         end
 
-        opts.on('-o', '--output FILE',
-                'Write output to FILE instead of stdout') do |o|
-          options[:output] = o
+        opts.on('--include-casks', [:include_casks],
+                'Include casks in the graph. Default: false') do
+          options[:include_casks] = true
         end
 
         opts.on('--all', [:all],
@@ -137,10 +136,6 @@ Examples:
           options[:installed] = true
         end
 
-        opts.on('--include-casks', [:include_casks],
-                'Include gasks in the graph. Default: false') do
-          options[:include_casks] = true
-        end
       end
 
       begin
