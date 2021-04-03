@@ -30,13 +30,13 @@ Type `brew graph --help`.
     
      -h, --help            Print this help message.
      -f, --format FORMAT   Specify FORMAT of graph (dot, graphml). Default: dot
+     -o, --output FILE     Write output to FILE instead of stdout     
      --highlight-leaves    Highlight formulae that are not dependencies of another
                            formula. Default: false
      --highlight-outdated  Highlight formulae that are outdated. Default: false
-     -o, --output FILE     Write output to FILE instead of stdout
+     --include-casks       List formulae and casks
      --installed           Create graph for installed Homebrew formulae
      --all                 Create graph for all Homebrew formulae
-     --include-casks       List formulae and casks
     
     Examples:
     
