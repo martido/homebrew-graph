@@ -171,30 +171,40 @@ See brew graph --help.}
         when :all then %x[brew deps --1 --all #{type}]
         when :installed then %x[brew deps --1 --installed #{type}]
         else # Treat arg as a list of formulae
-          out = %x[brew deps --for-each #{arg.join(' ')}]
-          unless $? == 0 # Check exit code
-            abort
-          end
-          # Output is of the form
-          #   formula1: dep1 dep2 dep3 ...
-          #   formula2: dep1 dep2 dep3 ...
-          # We need to add additional lines
-          #   dep1:
-          #   dep2:
-          #   dep3:
-          # for all dependencies.
-          # This is consistent with the output of 'brew deps --installed'.
-          # Also, the GraphML markup language requires a separate <node>
-          # block for each node in the graph.
           res = {}
-          out.split("\n").each do |line|
-            formula,deps = line.split(':')
-            res[formula] = deps.strip
-            deps.split(' ').each do |dep|
-              res[dep] = '' unless res.has_key? dep
-            end
-          end
+          brew_deps_formulae(res, arg.join(' '))
           res.map { |k, v| "#{k}: #{v}" }.join("\n")
+      end
+    end
+
+    # Gets the first-level dependencies of the input formulae and recurses
+    # down to the leaves to get the complete dependency graph.
+    #
+    # The output of `brew deps --for-each --1 <formulae>` is of the form:
+    #   formula1: dep1 dep2 dep3 ...
+    #   formula2: dep1 dep2 dep3 ...
+    # We need to add additional lines
+    #   dep1:
+    #   dep2:
+    #   dep3:
+    # for all dependencies.
+    # This is consistent with the output of 'brew deps --installed'.
+    # Also, the GraphML markup language requires a separate <node>
+    # block for each node in the graph.
+    def brew_deps_formulae(res, arg)
+      out = %x[brew deps --for-each --1 #{arg}]
+      unless $? == 0 # Check exit code
+        abort
+      end
+      out.split("\n").each do |line|
+        formula,deps = line.split(':')
+        unless res.has_key? formula
+          deps = deps.strip
+          res[formula] = deps
+          unless deps.empty?
+            brew_deps_formulae(res, deps)
+          end
+        end
       end
     end
 
