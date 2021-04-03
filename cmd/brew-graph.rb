@@ -220,7 +220,6 @@ See brew graph --help.}
 
     # Remove uninstalled, optional dependencies
     def remove_optional_deps(data)
-      puts data
       data.each_value do |deps|
         deps.keep_if do |dep|
           data.include?(dep)
