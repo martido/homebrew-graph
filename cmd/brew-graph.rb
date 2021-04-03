@@ -72,6 +72,7 @@ See brew graph --help.}
     graph = case format
         when :dot then Dot.new(data, highlight_leaves, highlight_outdated && outdated)
         when :graphml then GraphML.new(data, highlight_leaves, highlight_outdated && outdated)
+        else abort "Format #{format} not support. Support formats are: dot, graphml"
       end
 
     if output
@@ -209,9 +210,10 @@ See brew graph --help.}
 
     # Remove uninstalled, optional dependencies
     def remove_optional_deps(data)
-      data.each_pair do |source, targets|
-        targets.keep_if do |target|
-          data.include?(target)
+      puts data
+      data.each_value do |deps|
+        deps.keep_if do |dep|
+          data.include?(dep)
         end
       end
     end
