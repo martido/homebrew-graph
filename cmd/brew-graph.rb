@@ -168,8 +168,8 @@ See brew graph --help.}
       type = include_casks ? nil : '--formulae'
 
       case arg
-        when :all then %x[brew deps --1 --all #{type}]
-        when :installed then %x[brew deps --1 --installed #{type}]
+        when :all then %x[brew deps --1 --full-name --all #{type}]
+        when :installed then %x[brew deps --1 --full-name --installed #{type}]
         else # Treat arg as a list of formulae
           res = {}
           brew_deps_formulae(res, arg.join(' '))
