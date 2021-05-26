@@ -15,6 +15,7 @@
 #: `--include-casks`       List formulae and casks
 #: `--installed`           Create graph for installed Homebrew formulae
 #: `--all`                 Create graph for all Homebrew formulae
+#: `--reduce`              Apply transitive reduction to graph
 #:
 #:Examples:
 #:
@@ -53,6 +54,7 @@ class BrewGraph
     output = @options[:output]
     highlight_leaves = @options[:highlight_leaves]
     highlight_outdated = @options[:highlight_outdated]
+    reduce = @options[:reduce]
 
     data = if installed
         deps(:installed, include_casks)
@@ -64,6 +66,21 @@ class BrewGraph
         abort %Q{This command requires one of --installed or --all, or one or more formula arguments.
 See brew graph --help.}
       end
+
+    if reduce
+      graph_to_adges = ->_{ _.flat_map { |k, vs| vs.map { |v| [k, v] } } }
+
+      data.keys.flat_map do |start|
+        atad = {}
+        layer = [start]
+        until layer.empty?
+          layer = layer.
+            flat_map { |a| data[a].map { |b| [a, b] } }.
+            group_by(&:last).each { |b, g| atad[b] = g.map(&:first) }.map(&:first)
+        end
+        graph_to_adges[atad]
+      end.uniq.group_by(&:last).each { |v, g| data[v] = g.map(&:first) }
+    end
 
     if installed
       remove_optional_deps(data)
@@ -89,6 +106,7 @@ See brew graph --help.}
       options[:format] = :dot
       options[:highlight_leaves] = false
       options[:highlight_outdated] = false
+      options[:reduce] = false
       options[:include_casks] = false
       options[:all] = false
       options[:installed] = false
@@ -120,6 +138,11 @@ See brew graph --help.}
         opts.on('--highlight-outdated', [:highlight_outdated],
                 'Highlight formulae that are outdated. Default: false') do
           options[:highlight_outdated] = true
+        end
+
+        opts.on('--reduce', [:reduce],
+                'Apply transitive reduction to graph. Default: false') do
+          options[:reduce] = true
         end
 
         opts.on('--include-casks', [:include_casks],
