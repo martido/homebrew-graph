@@ -155,7 +155,7 @@ See brew graph --help.}
       deps = brew_deps(arg, include_casks).split("\n")
       deps.each do |s|
         node,deps = s.split(':')
-        data[node] = deps.nil? ? nil : deps.strip.split(' ').uniq
+        data[node] = deps.nil? ? [] : deps.strip.split(' ').uniq
       end
       data
     end
@@ -255,7 +255,6 @@ class Dot < Graph
       dot << create_node(node, @highlight_leaves && is_leaf?(node), @outdated && is_outdated?(node))
     end
     @data.each_pair do |source, targets|
-      next if targets.nil?
       targets.each do |target|
         dot << create_edge(source, target)
       end
@@ -285,7 +284,6 @@ class GraphML < Graph
       out << create_node(node, @highlight_leaves && is_leaf?(node), @outdated && is_outdated?(node))
     end
     @data.each_pair do |source, targets|
-      next if targets.nil?
       targets.each do |target|
         out << create_edge(source, target)
       end
