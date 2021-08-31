@@ -11,6 +11,8 @@ In general, if you'd like to know more about [Untangling Your Homebrew Dependenc
 
 ## Installation
 
+Tapping this repo is the only installation step required! There is no need for a separate `brew install` step.
+
     brew tap martido/homebrew-graph
     
 **Note:** If you already have the brew-graph formula installed from [the old tap repository][4], uninstall it first:
