@@ -37,6 +37,7 @@ Type `brew graph --help`.
                            formula. Default: false
      --highlight-outdated  Highlight formulae that are outdated. Default: false
      --include-casks       List formulae and casks
+     --reduce              Apply transitive reduction to graph
      --installed           Create graph for installed Homebrew formulae
      --all                 Create graph for all Homebrew formulae
     
@@ -75,7 +76,24 @@ You can use the [yEd][1] graph editor to visualize GraphML markup. The created m
 
     brew deps --installed | grep ':.*FORMULA' | awk -F':' '{print $1}'
 
+## Transitive reduction
+
+The `--reduce` option allows you to apply a [transitive reduction][5] to the dependency graph.
+
+Let's take Node.js as an example. This is the dependency graph:
+
+![node_dependencies_wo_reduction](docs/node_dependencies_wo_reduction.png "Node.js dependencies w/o reduction")
+
+`openssl@1.1` is a dependency of both `node` and `python@3.9` which `node` itself depends on. Similarly, `readline` is both a depedency of `python@3.9` and `sqlite`.
+
+Transitive reduction simplifies the graph by removing direct edges in favor of transitive dependencies:
+
+![node_dependencies_w_reduction](docs/node_dependencies_w_reduction.png "Node.js dependencies w/ reduction")
+
+Contributed by @Nakilon. 
+
 [1]: http://www.yworks.com/en/products_yed_about.html
 [2]: http://blog.jpalardy.com/posts/untangling-your-homebrew-dependencies
 [3]: https://docs.brew.sh/How-to-Create-and-Maintain-a-Tap
 [4]: https://github.com/martido/homebrew-brew-graph
+[5]: https://en.wikipedia.org/wiki/Transitive_reduction
