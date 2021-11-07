@@ -13,9 +13,9 @@
 #:                         formula. Default: false
 #: `--highlight-outdated`  Highlight formulae that are outdated. Default: false
 #: `--include-casks`       List formulae and casks
+#: `--reduce`              Apply transitive reduction to graph
 #: `--installed`           Create graph for installed Homebrew formulae
 #: `--all`                 Create graph for all Homebrew formulae
-#: `--reduce`              Apply transitive reduction to graph
 #:
 #:Examples:
 #:
@@ -68,18 +68,7 @@ See brew graph --help.}
       end
 
     if reduce
-      graph_to_adges = ->_{ _.flat_map { |k, vs| vs.map { |v| [k, v] } } }
-
-      data.keys.flat_map do |start|
-        atad = {}
-        layer = [start]
-        until layer.empty?
-          layer = layer.
-            flat_map { |a| data[a].map { |b| [a, b] } }.
-            group_by(&:last).each { |b, g| atad[b] = g.map(&:first) }.map(&:first)
-        end
-        graph_to_adges[atad]
-      end.uniq.group_by(&:last).each { |v, g| data[v] = g.map(&:first) }
+      reduce(data)
     end
 
     if installed
@@ -106,8 +95,8 @@ See brew graph --help.}
       options[:format] = :dot
       options[:highlight_leaves] = false
       options[:highlight_outdated] = false
-      options[:reduce] = false
       options[:include_casks] = false
+      options[:reduce] = false
       options[:all] = false
       options[:installed] = false
 
@@ -140,14 +129,14 @@ See brew graph --help.}
           options[:highlight_outdated] = true
         end
 
-        opts.on('--reduce', [:reduce],
-                'Apply transitive reduction to graph. Default: false') do
-          options[:reduce] = true
-        end
-
         opts.on('--include-casks', [:include_casks],
                 'Include casks in the graph. Default: false') do
           options[:include_casks] = true
+        end
+
+        opts.on('--reduce', [:reduce],
+                'Apply transitive reduction to graph. Default: false') do
+          options[:reduce] = true
         end
 
         opts.on('--all', [:all],
@@ -239,6 +228,42 @@ See brew graph --help.}
       data.each_pair do |source, targets|
         puts "#{source} -> #{targets.inspect}"
       end
+    end
+
+    def reduce(data)
+      graph_to_edges = -> _ { _.flat_map { |k, vs| vs.map { |v| [k, v] } } }
+      
+      # For each formula, will create an array of edges from the target
+      # dependencies to their source, taking transitive dependencies into
+      # account.
+      # 
+      # Example: webp
+      # Dependencies: webp => [giflib, jpeg, libpng, libtiff]
+      # Result: [[giflib, webp], [jpeg, libtiff], [libpng, webp], [libtiff, webp]]
+      # This is because there are edges [webp, jpeg], [webp, libtiff] and [libtiff, jpeg]
+      edges = data.keys.flat_map do |start|
+        atad = {}
+        layer = [start]
+        until layer.empty?
+          layer = layer
+            .flat_map { |a| data[a].map { |b| [a, b] } }
+            .group_by(&:last)
+            .each { |b, g| atad[b] = g.map(&:first) }
+            .map(&:first)
+        end
+        graph_to_edges[atad]
+      end
+      
+      # Transform edges from [target, source] back to [source, target].
+      #
+      # Example: webp
+      # Result:
+      #   webp => [giflib, libpng, libtiff]
+      #   libtiff => [jpeg]
+      edges
+        .uniq
+        .group_by(&:last)
+        .each { |v, g| data[v] = g.map(&:first) }
     end
 
     # Remove uninstalled, optional dependencies
