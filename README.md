@@ -90,10 +90,11 @@ Transitive reduction simplifies the graph by removing direct edges in favor of t
 
 ![node_dependencies_w_reduction](docs/node_dependencies_w_reduction.png "Node.js dependencies w/ reduction")
 
-Contributed by @Nakilon. 
+Contributed by [Nakilon][6]. 
 
 [1]: http://www.yworks.com/en/products_yed_about.html
 [2]: http://blog.jpalardy.com/posts/untangling-your-homebrew-dependencies
 [3]: https://docs.brew.sh/How-to-Create-and-Maintain-a-Tap
 [4]: https://github.com/martido/homebrew-brew-graph
 [5]: https://en.wikipedia.org/wiki/Transitive_reduction
+[6]: https://github.com/Nakilon
