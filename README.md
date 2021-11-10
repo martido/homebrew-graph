@@ -34,10 +34,10 @@ Type `brew graph --help`.
      -f, --format FORMAT   Specify FORMAT of graph (dot, graphml). Default: dot
      -o, --output FILE     Write output to FILE instead of stdout     
      --highlight-leaves    Highlight formulae that are not dependencies of another
-                           formula. Default: false
-     --highlight-outdated  Highlight formulae that are outdated. Default: false
-     --include-casks       List formulae and casks
-     --reduce              Apply transitive reduction to graph
+                           installed formula. Default: false
+     --highlight-outdated  Highlight outdated formulae. Default: false
+     --include-casks       Include casks in the graph. Default: false
+     --reduce              Apply transitive reduction to graph. Default: false
      --installed           Create graph for installed Homebrew formulae
      --all                 Create graph for all Homebrew formulae
     

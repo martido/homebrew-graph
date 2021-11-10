@@ -10,10 +10,10 @@
 #: `-f`, `--format FORMAT` Specify FORMAT of graph (dot, graphml). Default: dot
 #: `-o`, `--output FILE`   Write output to FILE instead of stdout
 #: `--highlight-leaves`    Highlight formulae that are not dependencies of another
-#:                         formula. Default: false
-#: `--highlight-outdated`  Highlight formulae that are outdated. Default: false
-#: `--include-casks`       List formulae and casks
-#: `--reduce`              Apply transitive reduction to graph
+#:                         installed formula. Default: false
+#: `--highlight-outdated`  Highlight outdated formulae. Default: false
+#: `--include-casks`       Include casks in the graph. Default: false
+#: `--reduce`              Apply transitive reduction to graph. Default: false
 #: `--installed`           Create graph for installed Homebrew formulae
 #: `--all`                 Create graph for all Homebrew formulae
 #:
@@ -47,14 +47,14 @@ class BrewGraph
   end
 
   def run
-    all = @options[:all]
-    installed = @options[:installed]
-    include_casks = @options[:include_casks]
     format = @options[:format]
     output = @options[:output]
     highlight_leaves = @options[:highlight_leaves]
     highlight_outdated = @options[:highlight_outdated]
+    include_casks = @options[:include_casks]
     reduce = @options[:reduce]
+    installed = @options[:installed]
+    all = @options[:all]
 
     data = if installed
         deps(:installed, include_casks)
@@ -97,8 +97,8 @@ See brew graph --help.}
       options[:highlight_outdated] = false
       options[:include_casks] = false
       options[:reduce] = false
-      options[:all] = false
       options[:installed] = false
+      options[:all] = false
 
       opts = OptionParser.new do |opts|
 
@@ -120,12 +120,12 @@ See brew graph --help.}
         end
 
         opts.on('--highlight-leaves', [:highlight_leaves],
-                'Highlight formulae that are not dependencies of another formula. Default: false') do
+                "Highlight formulae that are not dependencies of another installed formula. Default: false") do
           options[:highlight_leaves] = true
         end
 
         opts.on('--highlight-outdated', [:highlight_outdated],
-                'Highlight formulae that are outdated. Default: false') do
+                "Highlight outdated formulae. Default: false") do
           options[:highlight_outdated] = true
         end
 
@@ -138,15 +138,15 @@ See brew graph --help.}
                 'Apply transitive reduction to graph. Default: false') do
           options[:reduce] = true
         end
+        
+        opts.on('--installed', [:installed],
+                'Create graph for installed Homebrew formulae') do
+          options[:installed] = true
+        end
 
         opts.on('--all', [:all],
                 'Create graph for all Homebrew formulae') do
           options[:all] = true
-        end
-
-        opts.on('--installed', [:installed],
-                'Create graph for installed Homebrew formulae') do
-          options[:installed] = true
         end
 
       end
