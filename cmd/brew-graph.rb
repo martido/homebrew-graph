@@ -172,10 +172,6 @@ See brew graph --help.}
       data
     end
 
-    def outdated
-      brew_outdated.split("\n")
-    end
-
     def brew_deps(arg, include_casks)
       type = include_casks ? nil : '--formulae'
 
@@ -220,14 +216,12 @@ See brew graph --help.}
       end
     end
 
-    def brew_outdated
-      %x[brew outdated]
+    def outdated
+      brew_outdated.split("\n")
     end
 
-    def print_deps(data)
-      data.each_pair do |source, targets|
-        puts "#{source} -> #{targets.inspect}"
-      end
+    def brew_outdated
+      %x[brew outdated]
     end
 
     def reduce(data)
