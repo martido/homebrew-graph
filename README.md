@@ -96,7 +96,7 @@ Contributed by [Nakilon][6].
 
 `brew-graph` only shows you the downstream dependencies of your installed formulae or arbitrary formulae arguments. If you would like to know which of your installed formulae depend on a given formula, you can use something like the following:  
 
-    brew deps --installed | grep ':.*FORMULA' | awk -F':' '{print $1}'
+    brew deps -1 --installed | grep ':.*FORMULA' | awk -F':' '{print $1}'
 
 [1]: http://www.yworks.com/en/products_yed_about.html
 [2]: http://blog.jpalardy.com/posts/untangling-your-homebrew-dependencies
