@@ -5,6 +5,12 @@ Please update your local clones or forks (for consistency only, GitHub makes sur
 
 # brew-graph
 
+1. [Installation](#installation)
+2. [Usage](#usage)
+3. [Requirements](#requirements)
+4. [Transitive Reduction](#transitive-reduction)
+5. [Upstream Dependencies](#upstream-dependencies)
+
 `brew-graph` is a Ruby script that creates a dependency graph of Homebrew formulae. The currently supported output options are *DOT* and *GraphML*.
 
 In general, if you'd like to know more about [Untangling Your Homebrew Dependencies][2], check out the blog post by Jonathan Palardy.  
@@ -70,13 +76,7 @@ Of course, you can also use a different Graphviz layout, such as `fdp`. Simply r
 
 You can use the [yEd][1] graph editor to visualize GraphML markup. The created markup uses yFiles's extensions to GraphML and heavily relies on defaults to keep the output reasonably small. It contains no layout information because yEd already provides an exhaustive set of algorithms.
 
-## Finding upstream dependencies
-
-`brew-graph` only shows you the downstream dependencies of your installed formulae or arbitrary formulae arguments. If you would like to know which of your installed formulae depend on a given formula, you can use something like the following:  
-
-    brew deps --installed | grep ':.*FORMULA' | awk -F':' '{print $1}'
-
-## Transitive reduction
+## Transitive Reduction
 
 The `--reduce` option allows you to apply a [transitive reduction][5] to the dependency graph.
 
@@ -90,7 +90,13 @@ Transitive reduction simplifies the graph by removing direct edges in favor of t
 
 ![node_dependencies_w_reduction](docs/node_dependencies_w_reduction.png "Node.js dependencies w/ reduction")
 
-Contributed by [Nakilon][6]. 
+Contributed by [Nakilon][6].
+
+## Upstream Dependencies
+
+`brew-graph` only shows you the downstream dependencies of your installed formulae or arbitrary formulae arguments. If you would like to know which of your installed formulae depend on a given formula, you can use something like the following:  
+
+    brew deps --installed | grep ':.*FORMULA' | awk -F':' '{print $1}'
 
 [1]: http://www.yworks.com/en/products_yed_about.html
 [2]: http://blog.jpalardy.com/posts/untangling-your-homebrew-dependencies
