@@ -173,11 +173,11 @@ See brew graph --help.}
     end
 
     def brew_deps(arg, include_casks)
-      type = include_casks ? nil : '--formulae'
+      include_casks_arg = include_casks ? nil : '--formulae'
 
       case arg
-        when :all then %x[brew deps --1 --full-name --all #{type}]
-        when :installed then %x[brew deps --1 --full-name --installed #{type}]
+        when :all then %x[brew deps --1 --full-name --all] # --formulae results in a Homebrew error with option --all
+        when :installed then %x[brew deps --1 --full-name --installed #{include_casks_arg}]
         else # Treat arg as a list of formulae
           res = {}
           brew_deps_formulae(res, arg.join(' '))
