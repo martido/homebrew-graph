@@ -10,6 +10,7 @@ Please update your local clones or forks (for consistency only, GitHub makes sur
 3. [Requirements](#requirements)
 4. [Transitive Reduction](#transitive-reduction)
 5. [Upstream Dependencies](#upstream-dependencies)
+6. [Known Issues](#known-issues)
 
 `brew-graph` is a Ruby script that creates a dependency graph of Homebrew formulae. The currently supported output options are *DOT* and *GraphML*.
 
@@ -98,9 +99,14 @@ Contributed by [Nakilon][6].
 
     brew deps -1 --installed | grep ':.*FORMULA' | awk -F':' '{print $1}'
 
+## Known Issues
+
+There's an issue with Homebrew that dependencies are not listed correctly with `brew deps` if they are too outdated. This is described in the brew-graph issue #13 and is also mentioned in [this Homebrew discussion thread][7]. So far, I've managed to resolve the issue everytime by upgrading dependencies with `brew upgrade`.
+
 [1]: http://www.yworks.com/en/products_yed_about.html
 [2]: http://blog.jpalardy.com/posts/untangling-your-homebrew-dependencies
 [3]: https://docs.brew.sh/How-to-Create-and-Maintain-a-Tap
 [4]: https://github.com/martido/homebrew-brew-graph
 [5]: https://en.wikipedia.org/wiki/Transitive_reduction
 [6]: https://github.com/Nakilon
+[7]: https://github.com/Homebrew/discussions/discussions/1574
