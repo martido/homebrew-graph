@@ -101,7 +101,7 @@ Contributed by [Nakilon][6].
 
 ## Known Issues
 
-There's an issue with Homebrew that dependencies are not listed correctly with `brew deps` if they are too outdated. This is described in the brew-graph issue #13 and is also mentioned in [this Homebrew discussion thread][7]. So far, I've managed to resolve the issue everytime by upgrading dependencies with `brew upgrade`.
+There's an issue with Homebrew that dependencies are not listed correctly with `brew deps` if they are too outdated. This is described in the brew-graph issue [#13][7] and is also mentioned in [this Homebrew discussion thread][8]. So far, I've managed to resolve the issue everytime by upgrading dependencies with `brew upgrade`.
 
 [1]: http://www.yworks.com/en/products_yed_about.html
 [2]: http://blog.jpalardy.com/posts/untangling-your-homebrew-dependencies
@@ -109,4 +109,5 @@ There's an issue with Homebrew that dependencies are not listed correctly with `
 [4]: https://github.com/martido/homebrew-brew-graph
 [5]: https://en.wikipedia.org/wiki/Transitive_reduction
 [6]: https://github.com/Nakilon
-[7]: https://github.com/Homebrew/discussions/discussions/1574
+[7]: https://github.com/martido/homebrew-graph/issues/13
+[8]: https://github.com/Homebrew/discussions/discussions/1574
