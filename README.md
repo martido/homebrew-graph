@@ -14,7 +14,7 @@ Please update your local clones or forks (for consistency only, GitHub makes sur
 
 `brew-graph` is a Ruby script that creates a dependency graph of Homebrew formulae. The currently supported output options are *DOT* and *GraphML*.
 
-In general, if you'd like to know more about [Untangling Your Homebrew Dependencies][2], check out the blog post by Jonathan Palardy.  
+If you would like to know more about [Untangling Your Homebrew Dependencies][2], check out the blog post by Jonathan Palardy.
 
 ## Installation
 
@@ -71,7 +71,7 @@ You can use Graphviz to visualize DOT graphs.
     brew graph --installed | dot -Tpng -ograph.png
     open graph.png
 
-Of course, you can also use a different Graphviz layout, such as `fdp`. Simply replace `dot` with `fdp`:
+You can also use different Graphviz layouts, such as `fdp`. Simply replace `dot` with `fdp`:
 
     brew graph --installed | fdp -Tpng -ograph.png
 
@@ -79,7 +79,7 @@ You can use the [yEd][1] graph editor to visualize GraphML markup. The created m
 
 ## Transitive Reduction
 
-The `--reduce` option allows you to apply a [transitive reduction][5] to the dependency graph.
+The `--reduce` option applies a [transitive reduction][5] to the dependency graph.
 
 Let's take Node.js as an example. This is the dependency graph:
 
