@@ -138,7 +138,7 @@ See brew graph --help.}
                 'Apply transitive reduction to graph. Default: false') do
           options[:reduce] = true
         end
-        
+
         opts.on('--installed', [:installed],
                 'Create graph for installed Homebrew formulae') do
           options[:installed] = true
@@ -176,7 +176,7 @@ See brew graph --help.}
       include_casks_arg = include_casks ? nil : '--formulae'
 
       case arg
-        when :all then %x[brew deps --1 --full-name --all] # --formulae results in a Homebrew error with option --all
+        when :all then %x[brew deps --1 --full-name --eval-all] # --formulae results in a Homebrew error with option --all
         when :installed then %x[brew deps --1 --full-name --installed #{include_casks_arg}]
         else # Treat arg as a list of formulae
           res = {}
@@ -226,11 +226,11 @@ See brew graph --help.}
 
     def reduce(data)
       graph_to_edges = -> _ { _.flat_map { |k, vs| vs.map { |v| [k, v] } } }
-      
+
       # For each formula, will create an array of edges from the target
       # dependencies to their source, taking transitive dependencies into
       # account.
-      # 
+      #
       # Example: webp
       # Dependencies: webp => [giflib, jpeg, libpng, libtiff]
       # Result: [[giflib, webp], [jpeg, libtiff], [libpng, webp], [libtiff, webp]]
@@ -247,7 +247,7 @@ See brew graph --help.}
         end
         graph_to_edges[atad]
       end
-      
+
       # Transform edges from [target, source] back to [source, target].
       #
       # Example: webp
