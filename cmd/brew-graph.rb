@@ -402,5 +402,5 @@ if RUBY_VERSION =~ /1\.8/
   end
 end
 
-brew = BrewGraph.new(ARGV)
+brew = BrewGraph.new(ARGV.dup)
 brew.run
